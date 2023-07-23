@@ -1,0 +1,71 @@
+version: '3'
+services:
+
+    #PHP Service
+    app:
+        build:
+            context: .
+            dockerfile: docker/php/Dockerfile
+        container_name: app
+        restart: unless-stopped
+        tty: true
+        environment:
+            SERVICE_NAME: app
+            SERVICE_TAGS: dev
+        working_dir: /var/www
+        networks:
+            - app-network
+        volumes:
+            - './:/var/www'
+            - './docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini'
+
+    #Nginx Service
+    webserver:
+        image: nginx:alpine
+        container_name: webserver
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "80:80"
+            - "443:443"
+        networks:
+            - app-network
+        volumes:
+            - './docker/nginx/conf.d/:/etc/nginx/conf.d'
+            - './:/var/www'
+        depends_on:
+            - app
+            - phpmyadmin
+
+    #MySQL Service
+    mysql:
+        image: mysql:8.0
+        container_name: mysql
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_DATABASE: youpost
+            MYSQL_ROOT_PASSWORD: root
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        networks:
+            - app-network
+
+    phpmyadmin:
+        image: phpmyadmin:latest
+        container_name: phpmyadmin
+        restart: always
+        ports:
+            - "8080:80"
+        environment:
+            PMA_ARBITRARY: 1
+            PMA_HOST: mysql
+        networks:
+            - app-network
+
+#Docker Networks
+networks:
+    app-network:
+        driver: bridge
