@@ -17,6 +17,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/lol', function (){
+Route::get('/xui', function (){
     echo 'you are lox!';
 });
