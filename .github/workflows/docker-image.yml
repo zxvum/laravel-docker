@@ -16,12 +16,6 @@ jobs:
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
         run: |
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-      - name: Get repository release tag
-        id: timeseries
-        uses: pozetroninc/github-action-get-latest-release@master
-        with:
-          excludes: prerelease, draft
-          repository: ${{ github.repository }}
       - name: Build Docker image
         run: |
           docker build --network=host -t ${{secrets.DOCKER_USER}}/MY_REPO:latest -t ${{secrets.DOCKER_USER}}/MY_REPO:${{ steps.timeseries.outputs.release }} .
