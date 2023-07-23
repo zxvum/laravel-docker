@@ -43,6 +43,12 @@ COPY --chown=www:www . /var/www
 # Change current user to www
 USER www
 
+# Run additional commands
+RUN php artisan queue:work & \
+    php artisan db:seed && \
+    php artisan optimize:clear
+
+
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
 CMD ["php-fpm"]
